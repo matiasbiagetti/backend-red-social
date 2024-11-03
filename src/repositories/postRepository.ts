@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import Post, { IPost } from '../models/postModel';
 
 class PostRepository {
@@ -18,12 +19,12 @@ class PostRepository {
     return await Post.findByIdAndDelete(postId);
   }
 
-  async findPostsPaginated(page: number, limit: number): Promise<IPost[]> {
-    return await Post.find()
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .sort({ createdAt: -1 })
-      .populate('user');
+  async findPostsByUsers(userIds: Types.ObjectId[], limit: number, page: number): Promise<IPost[]> {
+    return Post.find({ user: { $in: userIds } })
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .skip(page)
+    .exec();
   }
 
   async likePost(postId: string, userId: string): Promise<IPost | null> {

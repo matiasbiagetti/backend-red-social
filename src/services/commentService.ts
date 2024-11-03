@@ -1,9 +1,16 @@
 import commentRepository from '../repositories/commentRepository';
 import { IComment } from '../models/commentModel';
+import postRepository from '../repositories/postRepository';
+import { ErrorPostNotFound } from './postService';
+
 
 class CommentService {
-  async createComment(data: IComment): Promise<IComment> {
-    return await commentRepository.createComment(data);
+  async createComment(postId: string, userId: string, comment: string, media: string): Promise<IComment> {
+    const post = await postRepository.findPostById(postId);
+    if (!post) {
+      throw ErrorPostNotFound;
+    }
+    return await commentRepository.createComment(postId, userId, comment, media);
   }
 
   async getCommentById(commentId: string): Promise<IComment | null> {
@@ -14,8 +21,24 @@ class CommentService {
     return await commentRepository.deleteComment(commentId);
   }
 
-  async getCommentsByPost(postId: string): Promise<IComment[]> {
-    return await commentRepository.findCommentsByPost(postId);
+  async getCommentsByPost(postId: string, page: number, limit: number): Promise<IComment[]> {
+    return await commentRepository.findCommentsByPost(postId, page, limit);
+    }
+
+  async likeComment(commentId: string, userId: string): Promise<IComment | null> {
+    return await commentRepository.likeComment(commentId, userId);
+  }
+
+  async unlikeComment(commentId: string, userId: string): Promise<IComment | null> {
+    return await commentRepository.unlikeComment(commentId, userId);
+  }
+
+  async getCommentLikes(commentId: string): Promise<string[]> {
+    return await commentRepository.findCommentLikes(commentId);
+  }
+
+  async updateComment(commentId: string, comment: string): Promise<IComment | null> {
+    return await commentRepository.updateComment(commentId, comment);
   }
 }
 

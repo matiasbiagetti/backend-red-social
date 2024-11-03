@@ -14,9 +14,15 @@ class UserService {
     return await userRepository.deleteUser(userId);
   }
 
-  async searchUsers(query: string): Promise<IUser[]> {
-    return await userRepository.searchUsers(query);
+  async searchUsers(searchQuery: string): Promise<IUser[]> {
+    return await userRepository.searchUsers(searchQuery);
+  }
+
+  async getAllUsers() {
+    return await userRepository.getAllUsers(); // Example using Mongoose
   }
 }
+
+
 
 export default new UserService();

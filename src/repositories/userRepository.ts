@@ -1,3 +1,4 @@
+import { searchUsers } from './../controllers/userController';
 import User, { IUser } from '../models/userModel';
 
 class UserRepository {
@@ -8,6 +9,10 @@ class UserRepository {
 
   async findUserByEmail(email: string): Promise<IUser | null> {
     return await User.findOne({ email });
+  }
+
+  async findUserByUsername(username: string): Promise<IUser | null> {
+    return await User.findOne({ username });
   }
 
   async findUserById(userId: string): Promise<IUser | null> {
@@ -22,8 +27,25 @@ class UserRepository {
     return await User.findByIdAndDelete(userId);
   }
 
-  async searchUsers(query: string): Promise<IUser[]> {
-    return await User.find({ username: new RegExp(query, 'i') });
+  async searchUsers(searchQuery: string): Promise<IUser[]> {
+    const query = String(searchQuery); // Ensure searchQuery is a string
+    console.log(`Executing search with query: ${query}`); // Log the query
+
+    const users = await User.find({
+      $or: [
+        { firstName: { $regex: query, $options: 'i' } },
+        { lastName: { $regex: query, $options: 'i' } },
+        { email: { $regex: query, $options: 'i' } },
+        { username: { $regex: query, $options: 'i' } }
+      ]
+    }).exec();
+
+    console.log(`Found users: ${JSON.stringify(users)}`); // Log the found users
+    return users;
+  }
+
+  async getAllUsers() {
+    return await User.find();
   }
 }
 
