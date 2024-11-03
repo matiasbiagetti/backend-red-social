@@ -5,12 +5,12 @@ import { ErrorPostNotFound } from './postService';
 
 
 class CommentService {
-  async createComment(postId: string, userId: string, comment: string, media: string): Promise<IComment> {
+  async createComment(postId: string, userId: string, text: string, media: string): Promise<IComment> {
     const post = await postRepository.findPostById(postId);
     if (!post) {
       throw ErrorPostNotFound;
     }
-    return await commentRepository.createComment(postId, userId, comment, media);
+    return await commentRepository.createComment(postId, userId, text, media);
   }
 
   async getCommentById(commentId: string): Promise<IComment | null> {

@@ -6,8 +6,7 @@ import { IUser } from '../models/userModel';
 
 export const ErrorUsernameExists = new Error('Username already exists');
 export const ErrorEmailExists = new Error('Email already registered');
-const ErrorInvalidCredentials = new Error('Invalid credentials');
-const ErrorUserNotFound = new Error('User not found');
+export const ErrorInvalidCredentials = new Error('Invalid credentials');
 
 class AuthService {
   async register(userData: IUser): Promise<string> {
@@ -23,10 +22,10 @@ class AuthService {
 
   async login(email: string, password: string): Promise<string> {
     const user = await userRepository.findUserByEmail(email);
-    if (!user) throw new Error('Invalid credentials');
+    if (!user) throw ErrorInvalidCredentials;
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) throw new Error('Invalid credentials');
+    if (!isMatch) throw ErrorInvalidCredentials;
 
     return generateJWT(String(user._id));
   }
@@ -34,9 +33,25 @@ class AuthService {
   async forgotPassword(email: string): Promise<string> {
     const user = await userRepository.findUserByEmail(email);
     if (!user) throw new Error('User not found');
-
     const magicLink = `${process.env.CLIENT_URL}/reset-password?token=${generateJWT(String(user._id))}`;
-    await sendEmail(user.email, 'Password Reset', `Click here to reset your password: ${magicLink}`);
+    const emailSubject = 'SnapShare - You forgot your password? Do not worry!';
+    const emailBody = `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+      <h2>Hello ${user.firstName},</h2>
+      <p>We received a request to reset your password on SnapShare. If you did not make this request, you can ignore this email.</p>
+      <p>To reset your password, please click on the following link:</p>
+      <p>
+        <a href="${magicLink}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+          Reset Password
+        </a>
+      </p>
+      <p>This link is valid for 30 minutes.</p>
+      <p>If you have any questions or need assistance, feel free to contact us.</p>
+      <p>Thank you,</p>
+      <p>The SnapShare Team</p>
+    </div>
+  `
+    await sendEmail(user.email, emailSubject, emailBody);
 
     return magicLink;
   }

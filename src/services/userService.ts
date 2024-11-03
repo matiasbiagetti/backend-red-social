@@ -18,11 +18,18 @@ class UserService {
     return await userRepository.searchUsers(searchQuery);
   }
 
-  async getAllUsers() {
-    return await userRepository.getAllUsers(); // Example using Mongoose
+  async getAllUsers(): Promise<IUser[]> {
+    return await userRepository.getAllUsers();
+  }
+
+
+  async followUser(userId: string, userToFollowId: string): Promise<IUser | null> {
+    return await userRepository.followUser(userId, userToFollowId);
+  }
+
+  async unfollowUser(userId: string, userToUnfollow: string): Promise<IUser | null> {
+    return await userRepository.unfollowUser(userId, userToUnfollow);
   }
 }
-
-
 
 export default new UserService();

@@ -1,4 +1,3 @@
-import { searchUsers } from './../controllers/userController';
 import User, { IUser } from '../models/userModel';
 
 class UserRepository {
@@ -8,19 +7,27 @@ class UserRepository {
   }
 
   async findUserByEmail(email: string): Promise<IUser | null> {
-    return await User.findOne({ email });
+    return await User.findOne({ email })
+      .populate('followers', '_id firstName lastName username tier profileImage')
+      .populate('following', '_id firstName lastName username tier profileImage');
   }
 
   async findUserByUsername(username: string): Promise<IUser | null> {
-    return await User.findOne({ username });
+    return await User.findOne({ username })
+      .populate('followers', '_id firstName lastName username tier profileImage')
+      .populate('following', '_id firstName lastName username tier profileImage');
   }
 
   async findUserById(userId: string): Promise<IUser | null> {
-    return await User.findById(userId);
+    return await User.findById(userId)
+      .populate('followers', '_id firstName lastName username tier profileImage')
+      .populate('following', '_id firstName lastName username tier profileImage');
   }
 
   async updateUser(userId: string, data: Partial<IUser>): Promise<IUser | null> {
-    return await User.findByIdAndUpdate(userId, data, { new: true });
+    return await User.findByIdAndUpdate(userId, data, { new: true })
+      .populate('followers', '_id firstName lastName username tier profileImage')
+      .populate('following', '_id firstName lastName username tier profileImage');
   }
 
   async deleteUser(userId: string): Promise<IUser | null> {
@@ -38,14 +45,37 @@ class UserRepository {
         { email: { $regex: query, $options: 'i' } },
         { username: { $regex: query, $options: 'i' } }
       ]
-    }).exec();
+    })
+      .populate('followers', '_id firstName lastName username tier profileImage')
+      .populate('following', '_id firstName lastName username tier profileImage')
+      .exec();
 
     console.log(`Found users: ${JSON.stringify(users)}`); // Log the found users
     return users;
   }
 
-  async getAllUsers() {
-    return await User.find();
+  async followUser(userId: string, userToFollow: string): Promise<IUser | null> {
+    const user = await User.findByIdAndUpdate(userToFollow, { $addToSet: { followers: userId } }, { new: true })
+      .populate('followers', '_id firstName lastName username tier profileImage')
+      .populate('following', '_id firstName lastName username tier profileImage');
+
+    await User.findByIdAndUpdate(userId, { $push: { following: userToFollow } });
+    return user;
+  }
+
+  async unfollowUser(userId: string, userToUnfollow: string): Promise<IUser | null> {
+    const user = await User.findByIdAndUpdate(userToUnfollow, { $pull: { followers: userId } }, { new: true })
+      .populate('followers', '_id firstName lastName username tier profileImage')
+      .populate('following', '_id firstName lastName username tier profileImage');
+
+    await User.findByIdAndUpdate(userId, { $pull: { following: userToUnfollow } });
+    return user
+  }
+
+  async getAllUsers(): Promise<IUser[]> {
+    return await User.find()
+      .populate('followers', '_id firstName lastName username tier profileImage')
+      .populate('following', '_id firstName lastName username tier profileImage');
   }
 }
 

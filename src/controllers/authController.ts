@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import authService, { ErrorEmailExists, ErrorUsernameExists } from '../services/authService';
+import authService, { ErrorEmailExists, ErrorInvalidCredentials, ErrorUsernameExists } from '../services/authService';
+import jwt from 'jsonwebtoken';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -21,8 +22,12 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         const { email, password } = req.body;
         const token = await authService.login(email, password);
         res.status(200).json({ token });
-    } catch (err: unknown) {
-        res.status(400).json({ error: (err as Error).message });
+    } catch (err) {
+        if (err == ErrorInvalidCredentials) {
+            res.status(401).json({ error: (err as Error).message });
+            return;
+        }
+        res.status(500).json({ error: (err as Error).message });
     }
 };
 
@@ -38,8 +43,10 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
 
 export const resetPassword = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { userId, password } = req.body;
-        await authService.resetPassword(userId, password);
+        const { token, password } = req.body;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET) as unknown as { userId: string };
+
+        await authService.resetPassword(decoded.userId, password);
         res.status(200).json({ message: 'Password reset successfully' });
     } catch (err) {
         res.status(400).json({ error: (err as Error).message });

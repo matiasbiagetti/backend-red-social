@@ -5,6 +5,7 @@ import { ErrorPostNotFound } from '../services/postService';
 
 export const createComment = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    
     const comment = await commentService.createComment(req.params.post_id, req.userId!, req.body.text, req.body.media);
     res.status(201).json(comment);
   } catch (err) {

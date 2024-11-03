@@ -89,3 +89,48 @@ export const searchUsers = async (req: Request, res: Response): Promise<void> =>
         res.status(500).json({ error: (err as Error).message });
     }
 };
+
+export const followUser = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userIdToFollow = req.params.user_id;
+        const authenticatedUserId = req.userId;
+
+        if (userIdToFollow === authenticatedUserId) {
+            res.status(400).json({ message: 'You cannot follow yourself' });
+            return;
+        }
+
+        const updatedUser = await userService.followUser(authenticatedUserId, userIdToFollow);
+        if (!updatedUser) {
+            res.status(404).json({ message: 'User not found' });
+        } else {
+            res.status(200).json(updatedUser);
+        }
+    } catch (err) {
+        res.status(500).json({ error: (err as Error).message });
+    }
+};
+
+export const unfollowUser = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userIdToUnfollow = req.params.user_id;
+        const authenticatedUserId = req.userId;
+        
+        if (userIdToUnfollow === authenticatedUserId) {
+            res.status(400).json({ message: 'You cannot unfollow yourself' });
+            return;
+        }
+
+        const updatedUser = await userService.unfollowUser(authenticatedUserId, userIdToUnfollow);
+        if (!updatedUser) {
+            res.status(404).json({ message: 'User not found' });
+        } else {
+            res.status(200).json(updatedUser);
+        }
+    } catch (err) {
+        res.status(500).json({ error: (err as Error).message });
+    }
+};
+
+
+
