@@ -15,6 +15,7 @@ export interface IUser extends Document {
   following: mongoose.Schema.Types.ObjectId[];
   followers: mongoose.Schema.Types.ObjectId[];
   posts: mongoose.Schema.Types.ObjectId[];
+  likes: mongoose.Schema.Types.ObjectId[];
   comments: mongoose.Schema.Types.ObjectId[];
   tier: 'bronze' | 'silver' | 'gold' | 'platinum';
   gender: 'male' | 'female' | 'other';
@@ -39,6 +40,7 @@ const UserSchema: Schema<IUser> = new Schema({
   following: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   posts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
+  likes: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
   comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
   tier: { type: String, default: 'bronze' },
   gender: { type: String, enum: ['male', 'female', 'other'] },
