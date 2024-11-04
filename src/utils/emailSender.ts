@@ -1,4 +1,6 @@
+
 import nodemailer from 'nodemailer';
+import { config } from '../config/environment';
 
 export default async function sendEmail(to: string, subject: string, text: string): Promise<void> {
   const transporter = nodemailer.createTransport({
@@ -6,13 +8,13 @@ export default async function sendEmail(to: string, subject: string, text: strin
     port: 465,
     secure: true,
     auth: {
-      user: process.env.EMAIL_USERNAME,
-      pass: process.env.EMAIL_PASSWORD,
+      user: config.EMAIL_USERNAME,
+      pass: config.EMAIL_PASSWORD,
     },
   });
 
   const mailOptions = {
-    from: process.env.EMAIL_USERNAME,
+    from: config.EMAIL_USERNAME,
     to,
     subject,
     text,

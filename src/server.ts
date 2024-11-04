@@ -1,11 +1,8 @@
-import dotenv from 'dotenv';
 import app from './app';
-
-// Load environment variables from .env file
-dotenv.config();
+import { config } from './config/environment';
 
 // Set the port to listen on
-const PORT = process.env.PORT || 5000;
+const PORT = config.PORT || 5000;
 
 // Start the server
 app.listen(PORT, () => {
