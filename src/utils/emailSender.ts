@@ -1,8 +1,7 @@
-
 import nodemailer from 'nodemailer';
 import { config } from '../config/environment';
 
-export default async function sendEmail(to: string, subject: string, text: string): Promise<void> {
+export default async function sendEmail(to: string, subject: string, html: string): Promise<void> {
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 465,
@@ -17,10 +16,8 @@ export default async function sendEmail(to: string, subject: string, text: strin
     from: config.EMAIL_USERNAME,
     to,
     subject,
-    text,
+    html, 
   };
 
   await transporter.sendMail(mailOptions);
 }
-
-
