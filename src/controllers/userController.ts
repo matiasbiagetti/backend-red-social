@@ -93,7 +93,7 @@ export const searchUsers = async (req: Request, res: Response): Promise<void> =>
 export const followUser = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const userIdToFollow = req.params.user_id;
-        const authenticatedUserId = req.userId;
+        const authenticatedUserId = req.userId!;
 
         if (userIdToFollow === authenticatedUserId) {
             res.status(400).json({ message: 'You cannot follow yourself' });
@@ -114,7 +114,7 @@ export const followUser = async (req: AuthRequest, res: Response): Promise<void>
 export const unfollowUser = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const userIdToUnfollow = req.params.user_id;
-        const authenticatedUserId = req.userId;
+        const authenticatedUserId = req.userId!;
         
         if (userIdToUnfollow === authenticatedUserId) {
             res.status(400).json({ message: 'You cannot unfollow yourself' });

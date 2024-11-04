@@ -17,6 +17,10 @@ class CommentService {
     
     const comment = await commentRepository.createComment(postId, userId, text, media)
     user = await userRepository.findUserById(userId)
+    if (!user) {
+      throw new Error('User not found');
+    }
+    
     user.tier = await updateTier(userId)
     await user.save()
     return comment;
