@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { config } from '../config/environment';
 
 export default function generateJWT(userId: string): string {
   const payload = {
@@ -7,5 +8,5 @@ export default function generateJWT(userId: string): string {
     },
   };
 
-  return jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: '6h' });
+  return jwt.sign(payload, config.JWT_SECRET, { expiresIn: '3h' });
 }

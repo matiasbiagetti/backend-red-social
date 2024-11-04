@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import authService, { ErrorEmailExists, ErrorInvalidCredentials, ErrorUsernameExists } from '../services/authService';
 import jwt from 'jsonwebtoken';
+import { config } from '../config/environment';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -44,7 +45,7 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
 export const resetPassword = async (req: Request, res: Response): Promise<void> => {
     try {
         const { token, password } = req.body;
-        const decoded = jwt.verify(token, process.env.JWT_SECRET) as unknown as { userId: string };
+        const decoded = jwt.verify(token, config.JWT_SECRET) as unknown as { userId: string };
 
         await authService.resetPassword(decoded.userId, password);
         res.status(200).json({ message: 'Password reset successfully' });

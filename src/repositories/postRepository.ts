@@ -24,13 +24,15 @@ class PostRepository {
   }
 
   async findPostsByUsers(userIds: Types.ObjectId[], limit: number, page: number): Promise<IPost[]> {
-    return Post.find({ user: { $in: userIds } }).populate('likes', '_id username')
-    .populate('user', '_id username profileImage')
-    .populate('comments', '_id text media user likes')
-    .sort({ createdAt: -1 })
-    .limit(limit)
-    .skip(page)
-    .exec();
+    const skip = (page - 1) * limit;
+    return Post.find({ user: { $in: userIds } })
+      .populate('likes', '_id username')
+      .populate('user', '_id username profileImage')
+      .populate('comments', '_id text media user likes')
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .skip(skip)
+      .exec();
   }
 
   async likePost(postId: string, userId: string): Promise<IPost | null> {
@@ -53,10 +55,24 @@ class PostRepository {
     .populate('comments', '_id text media user likes'); 
   }
 
-  async findLikedPosts(userId: string): Promise<IPost[]> {
-    return await Post.find({ likes: userId }).populate('likes', '_id username')
-    .populate('user', '_id username profileImage')
-    .populate('comments', '_id text media user likes');
+  async findLikedPosts(userId: string, page: number, limit: number): Promise<{ posts: IPost[], total: number, page: number, pages: number }> {
+    const skip = (page - 1) * limit;
+    const posts = await Post.find({ likes: userId })
+      .skip(skip)
+      .limit(limit)
+      .populate('likes', '_id username')
+      .populate('user', '_id username profileImage')
+      .populate('comments', '_id text media user likes')
+      .exec();
+
+    const total = await Post.countDocuments({ likes: userId });
+
+    return {
+      posts,
+      total,
+      page,
+      pages: Math.ceil(total / limit),
+    };
   }
 }
 

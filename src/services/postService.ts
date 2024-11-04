@@ -42,8 +42,8 @@ class PostService {
     return await postRepository.unlikePost(postId, userId);
   }
 
-  async getLikedPosts(userId: string): Promise<IPost[]> {
-    return await postRepository.findLikedPosts(userId);
+  async getLikedPosts(userId: string, page: number, limit: number): Promise<{ posts: IPost[], total: number, page: number, pages: number }> {
+    return await postRepository.findLikedPosts(userId, page, limit);
   }
 }
 

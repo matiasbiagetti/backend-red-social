@@ -129,7 +129,10 @@ export const unlikePost = async (req: AuthRequest, res: Response): Promise<void>
 
 export const getLikedPosts = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const posts = await postService.getLikedPosts(req.userId!);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    const posts = await postService.getLikedPosts(req.userId!, page, limit);
     res.status(200).json(posts);
   } catch (err: any) {
     res.status(500).json({ error: err.message });

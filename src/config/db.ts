@@ -1,8 +1,10 @@
 import mongoose from 'mongoose';
+import { config } from './environment';
 
 const connectDB = async (): Promise<void> => {
     try {
-        await mongoose.connect("mongodb+srv://biagettimati:T99h54gffTjxgyXd@test-cluster.sco4q.mongodb.net/");
+        await mongoose.connect(config.MONGO_URI as string);
+
         console.log('MongoDB connected');
     } catch (err: any) {
         console.error((err as Error).message);
