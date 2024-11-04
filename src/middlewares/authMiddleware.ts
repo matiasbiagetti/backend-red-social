@@ -1,0 +1,24 @@
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+
+
+export interface AuthRequest extends Request {
+    userId?: string;
+  }
+
+  export default function (req: AuthRequest, res: Response, next: NextFunction): void {
+    const token = req.header('x-auth-token')?.replace('Bearer ', '');
+  
+    if (!token) {
+      res.status(401).json({ msg: 'No token, authorization denied' });
+      return;
+    }
+  
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { user: { id: string } };
+      req.userId = decoded.user.id; // Attach only the user ID
+      next();
+    } catch (err) {
+      res.status(401).json({ msg: 'Token is not valid or expired' });
+    }
+  };

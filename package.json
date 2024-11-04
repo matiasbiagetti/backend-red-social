@@ -1,0 +1,40 @@
+{
+  "name": "backend-red-social",
+  "version": "1.0.0",
+  "description": "Trabajo Práctico red social para Aplicaciones Distribuidas. UADE 2024 JUEVES-NOCHE.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "lint": "eslint . --ext .ts",
+    "lint-fix": "eslint . --ext .ts --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "backend-red-social"
+  },
+  "author": "biagettimati@gmail.com",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^9.9.1",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/nodemailer": "^6.4.15",
+    "eslint": "^9.9.1",
+    "globals": "^15.9.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript-eslint": "^8.3.0"
+  },
+  "dependencies": {
+    "axios": "^1.7.5",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.5.4",
+    "nodemailer": "^6.9.16",
+    "scanoss": "^0.15.2"
+  }
+}
