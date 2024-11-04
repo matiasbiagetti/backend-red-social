@@ -2,6 +2,8 @@ import commentRepository from '../repositories/commentRepository';
 import { IComment } from '../models/commentModel';
 import postRepository from '../repositories/postRepository';
 import { ErrorPostNotFound } from './postService';
+import userRepository from '../repositories/userRepository';
+import updateTier from '../utils/tierCalculator';
 
 
 class CommentService {
@@ -10,7 +12,11 @@ class CommentService {
     if (!post) {
       throw ErrorPostNotFound;
     }
-    return await commentRepository.createComment(postId, userId, text, media);
+    const comment = await commentRepository.createComment(postId, userId, text, media)
+    user = await userRepository.findUserById(userId)
+    user.tier = await updateTier(userId)
+    await user.save()
+    return comment;
   }
 
   async getCommentById(commentId: string): Promise<IComment | null> {

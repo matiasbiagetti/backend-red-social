@@ -52,6 +52,12 @@ class PostRepository {
     .populate('user', '_id username profileImage')
     .populate('comments', '_id text media user likes'); 
   }
+
+  async findLikedPosts(userId: string): Promise<IPost[]> {
+    return await Post.find({ likes: userId }).populate('likes', '_id username')
+    .populate('user', '_id username profileImage')
+    .populate('comments', '_id text media user likes');
+  }
 }
 
 export default new PostRepository();

@@ -13,7 +13,7 @@ export const createPost = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    const post = await postService.createPost({ 
+    const post = await postService.createPost(userId,{ 
       ...req.body, 
       user: Types.ObjectId.createFromHexString(userId) 
     });
@@ -122,6 +122,15 @@ export const unlikePost = async (req: AuthRequest, res: Response): Promise<void>
     } else {
       res.status(200).json(unlikedPost);
     }
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+export const getLikedPosts = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const posts = await postService.getLikedPosts(req.userId!);
+    res.status(200).json(posts);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
