@@ -12,6 +12,9 @@ class PostService {
   async createPost(userid: string, data: IPost): Promise<IPost> {
     const post = await postRepository.createPost(data);
     let user = await userRepository.findUserById(userid);
+    if (!user) {
+      throw new Error('User not found');
+    }
     user.tier = await updateTier(userid);
     await user.save();
     return post;
