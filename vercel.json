@@ -1,17 +1,14 @@
 {
     "builds": [
       {
-        "src": "src/server.ts",
-        "use": "@vercel/node",
-        "config": {
-          "outputDirectory": "public"
-        }
+        "src": "server.ts",
+        "use": "@vercel/node"
       }
     ],
     "routes": [
       {
         "src": "/(.*)",
-        "dest": "/app.ts"
+        "dest": "server.ts"
       }
     ]
   }

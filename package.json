@@ -4,7 +4,7 @@
   "description": "Trabajo Práctico red social para Aplicaciones Distribuidas. UADE 2024 JUEVES-NOCHE.",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev": "ts-node-dev --respawn --transpile-only server.ts",
     "build": "tsc",
     "start": "node public/server.js",
     "lint": "eslint . --ext .ts",
