@@ -1,5 +1,6 @@
 import { Types } from 'mongoose';
 import Post, { IPost } from '../models/postModel';
+import User from '../models/userModel';
 
 class PostRepository {
   async createPost(data: IPost): Promise<IPost> {
@@ -36,23 +37,36 @@ class PostRepository {
   }
 
   async likePost(postId: string, userId: string): Promise<IPost | null> {
-    return await Post.findByIdAndUpdate(
+    const post = await Post.findByIdAndUpdate(
       postId,
       { $addToSet: { likes: userId } },
       { new: true }
     ).populate('likes', '_id username')
     .populate('user', '_id username profileImage')
-    .populate('comments', '_id text media user likes'); 
+    .populate('comments', '_id text media user likes')
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $addToSet: { likedPosts: postId } },
+      { new: true }
+    );
+
+    return post;
+    
   }
 
   async unlikePost(postId: string, userId: string): Promise<IPost | null> {
-    return await Post.findByIdAndUpdate(
+    const post = await Post.findByIdAndUpdate(
       postId,
       { $pull: { likes: userId } },
       { new: true }
     ).populate('likes', '_id username')
     .populate('user', '_id username profileImage')
-    .populate('comments', '_id text media user likes'); 
+    .populate('comments', '_id text media user likes')
+
+    const user = await User.findByIdAndUpdate(userId, { $pull: { likedPosts: postId } }, { new: true });
+
+    return post;
   }
 
   async findLikedPosts(userId: string, page: number, limit: number): Promise<{ posts: IPost[], total: number, page: number, pages: number }> {

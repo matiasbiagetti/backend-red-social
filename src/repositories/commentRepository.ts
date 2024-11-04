@@ -22,8 +22,21 @@ class CommentRepository {
 
 
   async findCommentById(commentId: string): Promise<IComment | null> {
-    return await Comment.findById(commentId).populate('user', '_id username profileImage').populate('likes', '_id username profileImage');
+    
+  const comment = await Comment.findById(commentId);
+  if (!comment) {
+    throw new Error('Comment not found');
   }
+
+  const deletedComment = await Comment.findByIdAndDelete(commentId);
+
+  await Post.findByIdAndUpdate(
+    comment.post,
+    { $pull: { comments: commentId } },
+    { new: true }
+  );
+
+  return deletedComment;  }
 
   async deleteComment(commentId: string): Promise<IComment | null> {
     return await Comment.findByIdAndDelete(commentId);
