@@ -12,6 +12,9 @@ class CommentService {
     if (!post) {
       throw ErrorPostNotFound;
     }
+
+    let user = await userRepository.findUserById(userId)
+    
     const comment = await commentRepository.createComment(postId, userId, text, media)
     user = await userRepository.findUserById(userId)
     user.tier = await updateTier(userId)

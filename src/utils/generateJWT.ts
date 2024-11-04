@@ -8,5 +8,5 @@ export default function generateJWT(userId: string): string {
     },
   };
 
-  return jwt.sign(payload, config.JWT_SECRET!, { expiresIn: '6h' });
+  return jwt.sign(payload, config.JWT_SECRET, { expiresIn: '3h' });
 }
