@@ -2,11 +2,9 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config/environment';
 
 export default function generateJWT(userId: string, expires: string = '3h'): string {
-  const payload = {
-    user: {
-      id: userId,
-    },
-  };
+  return jwt.sign({ userId }, config.JWT_SECRET, { expiresIn: expires });
+}
 
-  return jwt.sign(payload, config.JWT_SECRET, { expiresIn: expires });
+export function generateRefreshToken(userId: string): string {
+  return generateJWT(userId, '90d');
 }

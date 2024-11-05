@@ -1,16 +1,17 @@
 import userRepository from '../repositories/userRepository';
 import bcrypt from 'bcryptjs';
-import generateJWT from '../utils/generateJWT';
+import generateJWT, { generateRefreshToken } from '../utils/generateJWT';
 import sendEmail from '../utils/emailSender';
-import { IUser } from '../models/userModel';
+import User, { IUser } from '../models/userModel';
 import { config } from '../config/environment';
+import jwt from 'jsonwebtoken';
 
 export const ErrorUsernameExists = new Error('Username already exists');
 export const ErrorEmailExists = new Error('Email already registered');
 export const ErrorInvalidCredentials = new Error('Invalid credentials');
 
 class AuthService {
-  async register(userData: IUser): Promise<string> {
+  async register(userData: IUser): Promise<{ accessToken: string, refreshToken: string }>  {
     let userExists = await userRepository.findUserByEmail(userData.email);
     if (userExists) throw ErrorEmailExists;
 
@@ -18,17 +19,28 @@ class AuthService {
     if (userExists) throw ErrorUsernameExists;
 
     const user = await userRepository.createUser(userData);
-    return generateJWT(user._id as unknown as string);
+
+    const accessToken = generateJWT(String(user._id));
+    const refreshToken = generateRefreshToken(String(user._id));
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    return { accessToken, refreshToken };
   }
 
-  async login(email: string, password: string): Promise<string> {
+  async login(email: string, password: string): Promise<{ accessToken: string, refreshToken: string }> {
     const user = await userRepository.findUserByEmail(email);
     if (!user) throw ErrorInvalidCredentials;
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw ErrorInvalidCredentials;
 
-    return generateJWT(String(user._id));
+    const accessToken = generateJWT(String(user._id));
+    const refreshToken = generateRefreshToken(String(user._id));
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    return { accessToken, refreshToken }; 
   }
 
   async forgotPassword(email: string): Promise<string> {
@@ -62,6 +74,30 @@ class AuthService {
     await userRepository.updateUser(userId, { password: hashedPassword });
   }
 
+  async refreshTokenService(refreshToken: string): Promise<{ accessToken: string, refreshToken: string } | null> {
+    const user = await User.findOne({ refreshToken });
+    if (!user) {
+      return null;
+    }
+  
+    return new Promise((resolve, reject) => {
+      jwt.verify(refreshToken, config.JWT_SECRET as string, async (err: any, decoded: any) => {
+        if (err || !decoded || typeof decoded !== 'object' || !('userId' in decoded)) {
+          return reject(new Error('Invalid refresh token'));
+        }
+  
+        const newAccessToken = generateJWT(String(user._id));
+        const newRefreshToken = generateJWT(String(user._id), '30d');
+        user.refreshToken = newRefreshToken;
+        await user.save();
+  
+        resolve({ accessToken: newAccessToken, refreshToken: newRefreshToken });
+      });
+    });
+  }
+
 }
 
 export default new AuthService();
+
+

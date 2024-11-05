@@ -25,6 +25,7 @@ export interface IUser extends Document {
   };
   createdAt: Date;
   updatedAt: Date;
+  refreshToken?: string;
 }
 
 const UserSchema: Schema<IUser> = new Schema({
@@ -49,7 +50,8 @@ const UserSchema: Schema<IUser> = new Schema({
   settings: {
     theme: { type: String, enum: ['light', 'dark'], default: 'dark' },
     language: { type: String, enum: ['en', 'es'], default: 'es' }
-  }
+  },
+  refreshToken: { type: String }
 });
 
 UserSchema.pre<IUser>('save', async function (next) {

@@ -1,4 +1,3 @@
-import { deleteComment, likeComment, unlikeComment, updateComment } from './../controllers/commentController';
 import Comment, { IComment } from '../models/commentModel';
 import Post from '../models/postModel';
 
