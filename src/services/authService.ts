@@ -34,7 +34,7 @@ class AuthService {
   async forgotPassword(email: string): Promise<string> {
     const user = await userRepository.findUserByEmail(email);
     if (!user) throw new Error('User not found');
-    const magicLink = `${config.CLIENT_URL}/reset-password?token=${generateJWT(String(user._id))}`;
+    const magicLink = `${config.CLIENT_URL}/reset-password?token=${generateJWT(String(user._id), '30m')}`;
     const emailSubject = 'SnapShare - You forgot your password? Do not worry!';
     const emailBody = `
     <div style="font-family: Arial, sans-serif; line-height: 1.6;">
