@@ -63,7 +63,7 @@ class AuthService {
       <p>Thank you,</p>
       <p>The SnapShare Team</p>
     </div>
-  `
+  `;
     await sendEmail(user.email, emailSubject, emailBody);
 
     return magicLink;
@@ -87,7 +87,7 @@ class AuthService {
         }
   
         const newAccessToken = generateJWT(String(user._id));
-        const newRefreshToken = generateJWT(String(user._id), '30d');
+        const newRefreshToken = generateRefreshToken(String(user._id));
         user.refreshToken = newRefreshToken;
         await user.save();
   
@@ -95,9 +95,6 @@ class AuthService {
       });
     });
   }
-
 }
 
 export default new AuthService();
-
-

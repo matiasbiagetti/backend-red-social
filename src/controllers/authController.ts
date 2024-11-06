@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import authService, { ErrorEmailExists, ErrorInvalidCredentials, ErrorUsernameExists } from '../services/authService';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/environment';
+import userRepository from '../repositories/userRepository';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -44,7 +45,7 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
         res.status(200).json({ message: 'Password reset link sent', magicLink });
         return
     } catch (err) {
-        res.status(400).json({ error: (err as Error).message });
+        res.status(500).json({ error: (err as Error).message });
         return 
     }
 };
@@ -54,11 +55,16 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
         const { token, password } = req.body;
         const decoded = jwt.verify(token, config.JWT_SECRET) as unknown as { userId: string };
 
+        if (!decoded || !('userId' in decoded)) {
+            res.status(400).json({ error: 'Invalid token' });
+            return
+        }
+
         await authService.resetPassword(decoded.userId, password);
         res.status(200).json({ message: 'Password reset successfully' });
         return
     } catch (err) {
-        res.status(400).json({ error: (err as Error).message });
+        res.status(500).json({ error: (err as Error).message });
         return
     }
 }
@@ -87,5 +93,18 @@ export const refreshTokens = async (req: Request, res: Response): Promise<void> 
       return;
     }
   };
+
+  export const logout = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { userId } = req.body;
+      await userRepository.updateUser(userId, { refreshToken: null });
+      res.status(200).json({ message: 'Logged out successfully' });
+      return;
+    } catch (error) {
+        console.error('Error in logout:', error);
+        res.status(500).json({ message: 'Internal server error' });
+        return;
+    }
+};
 
 
