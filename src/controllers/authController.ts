@@ -63,27 +63,29 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
     }
 }
 
-export const refreshToken = async (req: Request, res: Response): Promise<void> => {
-    const { refreshToken } = req.body.token;
+export const refreshTokens = async (req: Request, res: Response): Promise<void> => {
+    const { token } = req.body;
   
-    if (!refreshToken) {
+    if (!token) {
       res.status(401).json({ message: 'Refresh token is required' });
       return;
     }
   
     try {
-      const tokens = authService.refreshTokenService(refreshToken);
+      const tokens = await authService.refreshTokenService(token);
       if (!tokens) {
         res.status(403).json({ message: 'Invalid refresh token' });
         return;
       }
   
-      res.json(tokens);
+      const { accessToken, refreshToken } = tokens;
+      res.json({ access_token: accessToken, refresh_token: refreshToken });
+      return;
     } catch (error) {
       console.error('Error in refresh token:', error);
       res.status(500).json({ message: 'Internal server error' });
-      return
+      return;
     }
-  }
+  };
 
 
