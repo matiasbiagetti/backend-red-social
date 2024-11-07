@@ -6,12 +6,12 @@ export interface IUser extends Document {
   firstName: string;
   lastName: string;
   email: string;
+  birthdate: Date;
   bio?: string;
   username: string;
   password: string;
   profileImage?: string;
   coverImage?: string;
-  punctuation: number;
   following: mongoose.Schema.Types.ObjectId[];
   followers: mongoose.Schema.Types.ObjectId[];
   posts: mongoose.Schema.Types.ObjectId[];
@@ -32,12 +32,12 @@ const UserSchema: Schema<IUser> = new Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
+  birthdate: { type: Date, required: true },
   bio: { type: String },
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   profileImage: { type: String },
   coverImage: { type: String },
-  punctuation: { type: Number, default: 0 },
   following: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   posts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],

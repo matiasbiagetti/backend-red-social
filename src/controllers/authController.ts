@@ -16,6 +16,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
             res.status(409).json({ error: (err as Error).message });
             return
         } else {
+            console.log(err);
             res.status(500).json({ error: (err as Error).message });
             return
         }

@@ -5,7 +5,7 @@ import User from '../models/userModel';
 class PostRepository {
   async createPost(data: IPost): Promise<IPost> {
     const post = new Post(data);
-    return await post.save()
+    return (await post.save()).populate('user', '_id username profileImage')
   }
 
   async findPostById(postId: string): Promise<IPost | null> {
