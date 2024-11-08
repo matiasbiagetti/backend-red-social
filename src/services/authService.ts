@@ -5,6 +5,7 @@ import sendEmail from '../utils/emailSender';
 import User, { IUser } from '../models/userModel';
 import { config } from '../config/environment';
 import jwt from 'jsonwebtoken';
+import { format, parse } from 'date-fns';
 
 export const ErrorUsernameExists = new Error('Username already exists');
 export const ErrorEmailExists = new Error('Email already registered');
@@ -17,6 +18,16 @@ class AuthService {
 
     userExists = await userRepository.findUserByUsername(userData.username);
     if (userExists) throw ErrorUsernameExists;
+
+    // Ensure birthdate is a string
+    if (typeof userData.birthdate === 'string') {
+      // Parse the birthdate from dd/MM/yyyy to a Date object
+      const parsedBirthdate = parse(userData.birthdate, 'dd/MM/yyyy', new Date());
+      userData.birthdate = parsedBirthdate;
+    } else {
+      throw new Error('Invalid birthdate format');
+    }
+
 
     const user = await userRepository.createUser(userData);
 
