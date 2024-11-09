@@ -6,8 +6,8 @@ import userRepository from '../repositories/userRepository';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
     try {
-        const {accessToken, refreshToken} = await authService.register(req.body);
-        res.status(201).json({ accessToken, refreshToken });
+        const {accessToken, refreshToken, id} = await authService.register(req.body);
+        res.status(201).json({ accessToken, refreshToken, id });
     } catch (err) {
         if (err == ErrorEmailExists) {
             res.status(409).json({ error: (err as Error).message });
@@ -26,8 +26,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 export const login = async (req: Request, res: Response): Promise<void> => {
     try {
         const { email, password } = req.body;
-        const {accessToken, refreshToken} = await authService.login(email, password);
-        res.status(200).json({ access_token: accessToken, refresh_token: refreshToken });
+        const {accessToken, refreshToken, id} = await authService.login(email, password);
+        res.status(200).json({ access_token: accessToken, refresh_token: refreshToken, id: id });
         return
     } catch (err) {
         if (err == ErrorInvalidCredentials) {
@@ -85,8 +85,8 @@ export const refreshTokens = async (req: Request, res: Response): Promise<void> 
         return;
       }
   
-      const { accessToken, refreshToken } = tokens;
-      res.json({ access_token: accessToken, refresh_token: refreshToken });
+      const { accessToken, refreshToken, id } = tokens;
+      res.json({ access_token: accessToken, refresh_token: refreshToken, id: id });
       return;
     } catch (error) {
       console.error('Error in refresh token:', error);

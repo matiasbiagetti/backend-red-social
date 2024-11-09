@@ -12,7 +12,7 @@ export const ErrorEmailExists = new Error('Email already registered');
 export const ErrorInvalidCredentials = new Error('Invalid credentials');
 
 class AuthService {
-  async register(userData: IUser): Promise<{ accessToken: string, refreshToken: string }>  {
+  async register(userData: IUser): Promise<{ accessToken: string, refreshToken: string, id: string }> {
     let userExists = await userRepository.findUserByEmail(userData.email);
     if (userExists) throw ErrorEmailExists;
 
@@ -28,7 +28,6 @@ class AuthService {
       throw new Error('Invalid birthdate format');
     }
 
-
     const user = await userRepository.createUser(userData);
 
     const accessToken = generateJWT(String(user._id));
@@ -36,10 +35,10 @@ class AuthService {
     user.refreshToken = refreshToken;
     await user.save();
 
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken, id: String(user._id) };
   }
 
-  async login(email: string, password: string): Promise<{ accessToken: string, refreshToken: string }> {
+  async login(email: string, password: string): Promise<{ accessToken: string, refreshToken: string, id: string }> {
     const user = await userRepository.findUserByEmail(email);
     if (!user) throw ErrorInvalidCredentials;
 
@@ -51,7 +50,7 @@ class AuthService {
     user.refreshToken = refreshToken;
     await user.save();
 
-    return { accessToken, refreshToken }; 
+    return { accessToken, refreshToken, id: String(user._id) };
   }
 
   async forgotPassword(email: string): Promise<string> {
@@ -85,7 +84,7 @@ class AuthService {
     await userRepository.updateUser(userId, { password: hashedPassword });
   }
 
-  async refreshTokenService(refreshToken: string): Promise<{ accessToken: string, refreshToken: string } | null> {
+  async refreshTokenService(refreshToken: string): Promise<{ accessToken: string, refreshToken: string, id: string } | null> {
     const user = await User.findOne({ refreshToken });
     if (!user) {
       return null;
@@ -102,7 +101,7 @@ class AuthService {
         user.refreshToken = newRefreshToken;
         await user.save();
   
-        resolve({ accessToken: newAccessToken, refreshToken: newRefreshToken });
+        resolve({ accessToken: newAccessToken, refreshToken: newRefreshToken, id: String(user._id) });
       });
     });
   }
