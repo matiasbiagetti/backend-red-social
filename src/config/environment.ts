@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import { get } from 'mongoose';
 
 dotenv.config();
 
@@ -9,6 +10,9 @@ type Config = {
     EMAIL_USERNAME: string;
     EMAIL_PASSWORD: string;
     CLIENT_URL: string;
+    CLOUDINARY_NAME?: string;
+    CLOUDINARY_API_KEY?: string;
+    CLOUDINARY_API_SECRET?: string;
 };
 
 function getEnvVariable(key: string, defaultValue?: string): string {
@@ -26,4 +30,7 @@ export const config: Config = {
     EMAIL_USERNAME: getEnvVariable('EMAIL_USERNAME'),
     EMAIL_PASSWORD: getEnvVariable('EMAIL_PASSWORD'),
     CLIENT_URL: getEnvVariable('CLIENT_URL'),
+    CLOUDINARY_NAME: getEnvVariable('CLOUDINARY_NAME', ''),
+    CLOUDINARY_API_KEY: getEnvVariable('CLOUDINARY_API_KEY', ''),
+    CLOUDINARY_API_SECRET: getEnvVariable('CLOUDINARY_API_SECRET', ''),
 };

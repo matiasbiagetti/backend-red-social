@@ -3,6 +3,7 @@ import { IPost } from '../models/postModel';
 import { Types } from 'mongoose';
 import userRepository from '../repositories/userRepository';
 import updateTier from '../utils/tierCalculator';
+import { uploadMediaToCloudinary } from '../utils/cloudinary';
 
 export const ErrorPostNotFound = new Error('Post not found');
 
@@ -10,6 +11,8 @@ export const ErrorPostNotFound = new Error('Post not found');
 
 class PostService {
   async createPost(userid: string, data: IPost): Promise<IPost> {
+    const urls = await uploadMediaToCloudinary(data.media);
+    data.media = urls;
     const post = await postRepository.createPost(data);
     let user = await userRepository.findUserById(userid);
     if (!user) {
