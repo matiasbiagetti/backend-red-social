@@ -40,14 +40,10 @@ export const getPostsByUser = async (req: Request, res: Response): Promise<void>
   try {
     const userId = req.params.user_id;
     const limit = parseInt(req.query.limit as string) || 10;
-    const page = parseInt(req.query.page as string) || 0;
+    const page = parseInt(req.query.page as string) || 1;
     const userIdObj = Types.ObjectId.createFromHexString(userId);
     const posts = await postService.getPostsByUsers([userIdObj], limit, page);
-    if (!posts || posts.length === 0) {
-      res.status(404).json({ message: 'No posts found for this user' });
-    } else {
-      res.status(200).json(posts);
-    }
+    res.status(200).json(posts || []);
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
   }
