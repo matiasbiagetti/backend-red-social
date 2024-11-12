@@ -5,9 +5,17 @@ import userRoutes from './src/routes/userRoutes';
 import postRoutes from './src/routes/postRoutes';
 import adRoutes from './src/routes/adRoutes';
 import { config } from './src/config/environment';
+const cors = require('cors');
+
 
 // Initialize express application
 const app: Application = express();
+
+// Enable CORS for all origins
+app.use(cors({
+  origin: '*', 
+  credentials: true, 
+}));
 
 // Connect to the database
 connectDB();
@@ -34,6 +42,3 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-function cors(): any {
-  throw new Error('Function not implemented.');
-}
