@@ -12,9 +12,6 @@ const app: Application = express();
 // Connect to the database
 connectDB();
 
-// Middleware to enable CORS
-app.use(cors());
-
 // Middleware to parse incoming JSON requests
 app.use(express.json());
 
