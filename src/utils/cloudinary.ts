@@ -26,7 +26,7 @@ interface MediaItem {
         // Uploading media to Cloudinary
         const result = await cloudinary.uploader.upload(
           `data:base64,${base64encoded}`,
-          { resource_type: resourceType, folder: 'uploads' }
+          { resource_type: resourceType, folder: 'ADI' }
         );
   
         mediaUrls.push(result.secure_url);
