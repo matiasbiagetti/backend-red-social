@@ -11,13 +11,21 @@ export const ErrorPostNotFound = new Error('Post not found');
 
 class PostService {
   async createPost(userid: string, data: IPost): Promise<IPost> {
-    const urls = await uploadMediaToCloudinary(data.media);
-    data.media = urls;
-    const post = await postRepository.createPost(data);
+
     let user = await userRepository.findUserById(userid);
     if (!user) {
       throw new Error('User not found');
     }
+
+    if (!Array.isArray(data.media) || data.media.length > 3) {
+      throw new Error('You can upload a maximum of 3 media files');
+    }
+    
+    const urls = await uploadMediaToCloudinary(data.media);
+    data.media = urls;
+
+    const post = await postRepository.createPost(data);
+    
     user.tier = await updateTier(userid);
     await user.save();
     return post;

@@ -5,6 +5,8 @@ import userRoutes from './src/routes/userRoutes';
 import postRoutes from './src/routes/postRoutes';
 import adRoutes from './src/routes/adRoutes';
 import { config } from './src/config/environment';
+import bodyParser from 'body-parser';
+
 const cors = require('cors');
 
 
@@ -16,6 +18,11 @@ app.use(cors({
   origin: '*', 
   credentials: true, 
 }));
+
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+
+
 
 // Connect to the database
 connectDB();
