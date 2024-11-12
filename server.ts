@@ -12,6 +12,9 @@ const app: Application = express();
 // Connect to the database
 connectDB();
 
+// Middleware to enable CORS
+app.use(cors());
+
 // Middleware to parse incoming JSON requests
 app.use(express.json());
 
@@ -33,3 +36,7 @@ const PORT = config.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+function cors(): any {
+  throw new Error('Function not implemented.');
+}
