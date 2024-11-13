@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
-import authService, { ErrorEmailExists, ErrorInvalidCredentials, ErrorUsernameExists } from '../services/authService';
+import authService, { ErrorEmailExists, ErrorInvalidCredentials, ErrorInvalidOldPassword, ErrorUsernameExists } from '../services/authService';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/environment';
 import userRepository from '../repositories/userRepository';
+import { AuthRequest } from '../middlewares/authMiddleware';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -43,7 +44,7 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
     try {
         const { email } = req.body;
         const magicLink = await authService.forgotPassword(email);
-        res.status(200).json({ message: 'Password reset link sent', magicLink });
+        res.status(200).json({ message: 'Password reset link sent'});
         return
     } catch (err) {
         res.status(500).json({ error: (err as Error).message });
@@ -94,6 +95,26 @@ export const refreshTokens = async (req: Request, res: Response): Promise<void> 
       return;
     }
   };
+
+  export const changePassword = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const { oldPassword, newPassword } = req.body;
+        await authService.changePassword(String(req.userId), oldPassword, newPassword);
+        res.status(200).json({ message: 'Password changed successfully' });
+        return;
+    } catch (error) {
+        if (error === ErrorInvalidOldPassword) {
+            res.status(400).json({ message: 'Invalid old password' });
+            return;
+        }
+        else {
+        console.error('Error in change password:', error);
+        res.status(500).json({ message: 'Internal server error' });
+        return;
+    }
+}
+}
+
 
   export const logout = async (req: Request, res: Response): Promise<void> => {
     try {

@@ -10,6 +10,7 @@ import { format, parse } from 'date-fns';
 export const ErrorUsernameExists = new Error('Username already exists');
 export const ErrorEmailExists = new Error('Email already registered');
 export const ErrorInvalidCredentials = new Error('Invalid credentials');
+export const ErrorInvalidOldPassword = new Error('Invalid old password');
 
 class AuthService {
   async register(userData: IUser): Promise<{ accessToken: string, refreshToken: string, id: string }> {
@@ -55,7 +56,9 @@ class AuthService {
 
   async forgotPassword(email: string): Promise<string> {
     const user = await userRepository.findUserByEmail(email);
-    if (!user) throw new Error('User not found');
+    if (!user) {
+      return '';
+    } 
     const magicLink = `${config.CLIENT_URL}/reset-password?token=${generateJWT(String(user._id), '30m')}`;
     const emailSubject = 'SnapShare - You forgot your password? Do not worry!';
     const emailBody = `
@@ -81,6 +84,21 @@ class AuthService {
 
   async resetPassword(userId: string, password: string): Promise<void> {
     const hashedPassword = await bcrypt.hash(password, 10);
+    await userRepository.updateUser(userId, { password: hashedPassword });
+  }
+
+  async changePassword(userId: string, oldPassword: string, newPassword: string): Promise<void> {
+    const user = await userRepository.findUserById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      throw ErrorInvalidOldPassword;
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
     await userRepository.updateUser(userId, { password: hashedPassword });
   }
 
