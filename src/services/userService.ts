@@ -9,11 +9,13 @@ class UserService {
 
   async updateUser(userId: string, data: Partial<IUser>): Promise<IUser | null> {
     if (data.coverImage) {
-      const url = await uploadMediaToCloudinary([data.coverImage]);
+      let url = await uploadMediaToCloudinary([data.coverImage]);
+      console.log('url:', url);
       data.coverImage = url[0];
     }
     if (data.profileImage) {
-      const url = await uploadMediaToCloudinary([data.profileImage]);
+      let url = await uploadMediaToCloudinary([data.profileImage]);
+      console.log('url:', url);
       data.profileImage = url[0];
     }
     return await userRepository.updateUser(userId, data);

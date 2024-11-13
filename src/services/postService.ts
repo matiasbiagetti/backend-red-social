@@ -10,24 +10,28 @@ export const ErrorPostNotFound = new Error('Post not found');
 
 
 class PostService {
-  async createPost(userid: string, data: IPost): Promise<IPost> {
-
-    let user = await userRepository.findUserById(userid);
-    if (!user) {
-      throw new Error('User not found');
-    }
-
+  async createPost(userId: string, data: IPost): Promise<IPost> {
+    // Ensure media is an array of base64 strings
     if (!Array.isArray(data.media) || data.media.length > 3) {
       throw new Error('You can upload a maximum of 3 media files');
     }
-    
+
+    // Upload media to Cloudinary and get URLs
     const urls = await uploadMediaToCloudinary(data.media);
     data.media = urls;
 
+    // Create the post
     const post = await postRepository.createPost(data);
-    
-    user.tier = await updateTier(userid);
+
+    // Update user tier and add post ID to user's posts array
+    const user = await userRepository.findUserById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    user.posts.push(post._id);
+    user.tier = await updateTier(userId);
     await user.save();
+
     return post;
   }
 
