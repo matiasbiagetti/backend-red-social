@@ -11,7 +11,7 @@ export interface IUser extends Document {
   bio?: string;
   username: string;
   password: string;
-  profileImage?: string;
+  profileImage: string;
   coverImage?: string;
   following: mongoose.Schema.Types.ObjectId[];
   followers: mongoose.Schema.Types.ObjectId[];
@@ -38,7 +38,7 @@ const UserSchema: Schema<IUser> = new Schema({
   bio: { type: String },
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  profileImage: { type: String },
+  profileImage: { type: String, default: 'https://res.cloudinary.com/dsczjznlw/image/upload/v1731551232/ADI/wt28egc6mzm88so3zqpb.png' },
   coverImage: { type: String },
   following: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
