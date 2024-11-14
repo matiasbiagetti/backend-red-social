@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import postService from '../services/postService';
-import { Types } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
 import { AuthRequest } from '../middlewares/authMiddleware';
 import userService from '../services/userService';
@@ -48,6 +48,32 @@ export const getPostsByUser = async (req: Request, res: Response): Promise<void>
     res.status(500).json({ error: (err as Error).message });
   }
 };
+
+export const getPosts = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.userId!;
+    
+    // Fetch the list of users the current user follows
+    const user = await userService.getUserById(userId);
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    const followedUserIds = user.following.map((user) => user.toString());
+    followedUserIds.push(userId);
+
+    const followedUserObjectIds = followedUserIds.map((id) => Types.ObjectId.createFromHexString(id));
+
+    const posts = await postService.getPostsByUsers(followedUserObjectIds, 10, 1);
+    res.status(200).json(posts);
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+};
+
+
+
 
 export const updatePost = async (req: Request, res: Response): Promise<void> => {
   try {

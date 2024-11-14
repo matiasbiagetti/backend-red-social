@@ -9,7 +9,8 @@ import {
   likePost,
   unlikePost,
   getPostsByUser,
-  getLikedPosts
+  getLikedPosts,
+  getPosts
 } from '../controllers/postController';
 import authMiddleware from '../middlewares/authMiddleware';
 import { createComment, getCommentsByPost } from '../controllers/commentController';
@@ -21,7 +22,7 @@ router.post('/', authMiddleware, createPost);
 router.get('/:post_id', authMiddleware, getPostById);
 router.patch('/:post_id', authMiddleware, updatePost);
 router.delete('/:post_id', authMiddleware, deletePost);
-router.get('/', authMiddleware, getPostsByUser);
+router.get('/', authMiddleware, getPosts);
 router.post('/:post_id/likes', authMiddleware, likePost);
 router.delete('/:post_id/likes', authMiddleware, unlikePost);
 router.get('/:post_id/likes', authMiddleware, getPostLikes);

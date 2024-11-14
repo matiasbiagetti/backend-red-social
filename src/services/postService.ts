@@ -10,7 +10,7 @@ export const ErrorPostNotFound = new Error('Post not found');
 
 
 class PostService {
-  async createPost(userId: string, data: IPost): Promise<IPost> {
+  async createPost(userid: string, data: IPost): Promise<IPost> {
     // Ensure media is an array of base64 strings
     if (!Array.isArray(data.media) || data.media.length > 3) {
       throw new Error('You can upload a maximum of 3 media files');
@@ -24,12 +24,12 @@ class PostService {
     const post = await postRepository.createPost(data);
 
     // Update user tier and add post ID to user's posts array
-    const user = await userRepository.findUserById(userId);
+    let user = await userRepository.findUserById(userid);
     if (!user) {
       throw new Error('User not found');
     }
     user.posts.push(post._id);
-    user.tier = await updateTier(userId);
+    user.tier = await updateTier(userid);
     await user.save();
 
     return post;
