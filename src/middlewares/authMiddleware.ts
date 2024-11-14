@@ -20,7 +20,6 @@ export interface AuthRequest extends Request {
       const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
 
       req.userId = decoded.userId; 
-
       next();
     } catch (err) {
       res.status(401).json({ msg: 'Token is not valid or expired' });

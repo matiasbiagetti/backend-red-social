@@ -4,6 +4,7 @@ import mongoose, { Types } from 'mongoose';
 
 import { AuthRequest } from '../middlewares/authMiddleware';
 import userService from '../services/userService';
+import { IPost } from '../models/postModel';
 
 export const createPost = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -149,12 +150,12 @@ export const unlikePost = async (req: AuthRequest, res: Response): Promise<void>
   }
 }
 
-export const getLikedPosts = async (req: AuthRequest, res: Response): Promise<void> => {
+export const findLikedPosts = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
+    const userId = req.userId!;
     const limit = parseInt(req.query.limit as string) || 10;
-
-    const posts = await postService.getLikedPosts(req.userId!, page, limit);
+    const page = parseInt(req.query.page as string) || 1;
+    const posts = await postService.getLikedPosts(userId, page, limit);
     res.status(200).json(posts);
   } catch (err: any) {
     res.status(500).json({ error: err.message });

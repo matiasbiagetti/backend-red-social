@@ -8,9 +8,9 @@ import {
   getPostLikes,
   likePost,
   unlikePost,
-  getPostsByUser,
-  getLikedPosts,
-  getPosts
+  getPosts,
+
+  findLikedPosts
 } from '../controllers/postController';
 import authMiddleware from '../middlewares/authMiddleware';
 import { createComment, getCommentsByPost } from '../controllers/commentController';
@@ -18,6 +18,7 @@ import { createComment, getCommentsByPost } from '../controllers/commentControll
 const router: Router = Router();
 
 // Post routes
+router.get('/likes', authMiddleware, findLikedPosts);
 router.post('/', authMiddleware, createPost);
 router.get('/:post_id', authMiddleware, getPostById);
 router.patch('/:post_id', authMiddleware, updatePost);
@@ -26,7 +27,7 @@ router.get('/', authMiddleware, getPosts);
 router.post('/:post_id/likes', authMiddleware, likePost);
 router.delete('/:post_id/likes', authMiddleware, unlikePost);
 router.get('/:post_id/likes', authMiddleware, getPostLikes);
-router.get('/likes', authMiddleware, getLikedPosts);
+
 
 // Comments routes
 router.post('/:post_id/comments', authMiddleware, createComment);

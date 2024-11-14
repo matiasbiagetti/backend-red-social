@@ -1,6 +1,7 @@
-import { Types } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import Post, { IPost } from '../models/postModel';
 import User from '../models/userModel';
+import userRepository from './userRepository';
 
 class PostRepository {
   async createPost(data: IPost): Promise<IPost> {
@@ -69,25 +70,36 @@ class PostRepository {
     return post;
   }
 
-  async findLikedPosts(userId: string, page: number, limit: number): Promise<{ posts: IPost[], total: number, page: number, pages: number }> {
+  async findLikedPosts(userId: string, page: number, limit: number): Promise<IPost[]> {
     const skip = (page - 1) * limit;
-    const posts = await Post.find({ likes: userId })
+
+    // Find the user by ID
+    const user = await User.findById(userId).exec();
+  
+    if (!user) {
+      throw new Error('User not found');
+    }
+  
+    // Get the list of post IDs the user has liked
+    const likesIds = user.likes
+    console.log('LIKES', likesIds);
+    // Find posts that match the liked post IDs
+    const posts = await Post.find({ _id: { $in: likesIds } })
       .skip(skip)
       .limit(limit)
       .populate('likes', '_id username')
       .populate('user', '_id username profileImage')
-      .populate('comments', '_id text media user likes')
+      .populate({
+        path: 'comments',
+        populate: {
+          path: 'user',
+          select: '_id username profileImage'
+        }
+      })
       .exec();
-
-    const total = await Post.countDocuments({ likes: userId });
-
-    return {
-      posts,
-      total,
-      page,
-      pages: Math.ceil(total / limit),
-    };
-  }
+  
+    return posts;
+  };
 }
 
 export default new PostRepository();
