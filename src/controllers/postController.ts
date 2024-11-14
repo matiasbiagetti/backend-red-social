@@ -60,9 +60,9 @@ export const getPosts = async (req: AuthRequest, res: Response): Promise<void> =
       return;
     }
 
-    const followedUserIds = user.following.map((user) => user.toString());
+    const followedUserIds = user.following.map((user) => user.id.toString());
     followedUserIds.push(userId);
-
+    console.log(followedUserIds);
     const followedUserObjectIds = followedUserIds.map((id) => Types.ObjectId.createFromHexString(id));
 
     const posts = await postService.getPostsByUsers(followedUserObjectIds, 10, 1);
