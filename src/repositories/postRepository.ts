@@ -47,7 +47,7 @@ class PostRepository {
 
     const user = await User.findByIdAndUpdate(
       userId,
-      { $addToSet: { likedPosts: postId } },
+      { $addToSet: { likes: postId } },
       { new: true }
     );
 
