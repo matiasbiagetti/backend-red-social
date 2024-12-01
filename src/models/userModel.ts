@@ -27,6 +27,7 @@ export interface IUser extends Document {
   createdAt: Date;
   updatedAt: Date;
   refreshToken?: string | null;
+  isEmailVerified?: boolean;
 }
 
 const UserSchema: Schema<IUser> = new Schema({
@@ -53,7 +54,8 @@ const UserSchema: Schema<IUser> = new Schema({
     theme: { type: String, enum: ['light', 'dark'], default: 'dark' },
     language: { type: String, enum: ['en', 'es'], default: 'es' }
   },
-  refreshToken: { type: String }
+  refreshToken: { type: String },
+  isEmailVerified: { type: Boolean, default: false }
 });
 
 UserSchema.pre<IUser>('save', async function (next) {

@@ -1,3 +1,4 @@
+import { ErrorEmailExists } from './authService';
 import userRepository from '../repositories/userRepository';
 import bcrypt from 'bcryptjs';
 import generateJWT, { generateRefreshToken } from '../utils/generateJWT';
@@ -11,9 +12,10 @@ export const ErrorUsernameExists = new Error('Username already exists');
 export const ErrorEmailExists = new Error('Email already registered');
 export const ErrorInvalidCredentials = new Error('Invalid credentials');
 export const ErrorInvalidOldPassword = new Error('Invalid old password');
+export const ErrorEmailNotVerified = new Error('Email not verified');
 
 class AuthService {
-  async register(userData: IUser): Promise<{ accessToken: string, refreshToken: string, id: string }> {
+  async register(userData: IUser): Promise<{id: string }> {
     let userExists = await userRepository.findUserByEmail(userData.email);
     if (userExists) throw ErrorEmailExists;
 
@@ -31,12 +33,11 @@ class AuthService {
 
     const user = await userRepository.createUser(userData);
 
-    const accessToken = generateJWT(String(user._id));
-    const refreshToken = generateRefreshToken(String(user._id));
-    user.refreshToken = refreshToken;
+    this.sendVerificationEmail(String(user._id));
+
     await user.save();
 
-    return { accessToken, refreshToken, id: String(user._id) };
+    return {id: String(user._id) };
   }
 
   async login(email: string, password: string): Promise<{ accessToken: string, refreshToken: string, id: string }> {
@@ -45,6 +46,10 @@ class AuthService {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw ErrorInvalidCredentials;
+
+    if (!user.isEmailVerified) {
+      throw ErrorEmailNotVerified;
+    }
 
     const accessToken = generateJWT(String(user._id));
     const refreshToken = generateRefreshToken(String(user._id));
@@ -122,6 +127,32 @@ class AuthService {
         resolve({ accessToken: newAccessToken, refreshToken: newRefreshToken, id: String(user._id) });
       });
     });
+  }
+
+  async sendVerificationEmail(userId: string): Promise<void> {
+    const user = await userRepository.findUserById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const magicLink = `${config.CLIENT_URL}/verify-email?token=${generateJWT(String(user._id), '1d')}`;
+    const emailSubject = 'SnapShare - Verify your email address';
+    const emailBody = `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+      <h2>Hello ${user.firstName},</h2>
+      <p>Welcome to SnapShare! To get started, please verify your email address by clicking the button below.</p>
+      <p>
+        <a href="${magicLink}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+          Verify Email
+        </a>
+      </p>
+      <p>This link is valid for 24 hours.</p>
+      <p>If you have any questions or need assistance, feel free to contact us.</p>
+      <p>Thank you,</p>
+      <p>The SnapShare Team</p>
+    </div>
+  `;
+    await sendEmail(user.email, emailSubject, emailBody);
   }
 }
 

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import authService, { ErrorEmailExists, ErrorInvalidCredentials, ErrorInvalidOldPassword, ErrorUsernameExists } from '../services/authService';
+import authService, { ErrorEmailExists, ErrorEmailNotVerified, ErrorInvalidCredentials, ErrorInvalidOldPassword, ErrorUsernameExists } from '../services/authService';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/environment';
 import userRepository from '../repositories/userRepository';
@@ -7,8 +7,8 @@ import { AuthRequest } from '../middlewares/authMiddleware';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
     try {
-        const {accessToken, refreshToken, id} = await authService.register(req.body);
-        res.status(201).json({ accessToken, refreshToken, id });
+        const {id} = await authService.register(req.body);
+        res.status(201).json({id});
     } catch (err) {
         if (err == ErrorEmailExists) {
             res.status(409).json({ error: (err as Error).message });
@@ -33,6 +33,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     } catch (err) {
         if (err == ErrorInvalidCredentials) {
             res.status(401).json({ error: (err as Error).message });
+            return;
+        }
+        if (err == ErrorEmailNotVerified) {
+            res.status(412).json({ error: (err as Error).message });
             return;
         }
         res.status(500).json({ error: (err as Error).message });
@@ -96,7 +100,7 @@ export const refreshTokens = async (req: Request, res: Response): Promise<void> 
     }
   };
 
-  export const changePassword = async (req: AuthRequest, res: Response): Promise<void> => {
+export const changePassword = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const { oldPassword, newPassword } = req.body;
         await authService.changePassword(String(req.userId), oldPassword, newPassword);
@@ -116,7 +120,7 @@ export const refreshTokens = async (req: Request, res: Response): Promise<void> 
 }
 
 
-  export const logout = async (req: Request, res: Response): Promise<void> => {
+export const logout = async (req: Request, res: Response): Promise<void> => {
     try {
       const { userId } = req.body;
       await userRepository.updateUser(userId, { refreshToken: null });
@@ -129,4 +133,22 @@ export const refreshTokens = async (req: Request, res: Response): Promise<void> 
     }
 };
 
+export const verifyEmail = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { token } = req.body;
+        const decoded = jwt.verify(token, config.JWT_SECRET) as unknown as { userId: string };
+
+        if (!decoded || !('userId' in decoded)) {
+            res.status(400).json({ error: 'Invalid token' });
+            return
+        }
+
+        await userRepository.verifyEmail(decoded.userId);
+        res.status(200).json({ message: 'Email verified successfully' });
+        return
+    } catch (err) {
+        res.status(500).json({ error: (err as Error).message });
+        return
+    }
+}
 

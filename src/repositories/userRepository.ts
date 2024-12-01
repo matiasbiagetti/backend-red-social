@@ -1,3 +1,4 @@
+import { verifyEmail } from './../controllers/authController';
 import User, { IUser } from '../models/userModel';
 
 class UserRepository {
@@ -82,6 +83,13 @@ class UserRepository {
 
   async getAllUsers(): Promise<IUser[]> {
     return await User.find()
+      .populate('followers', '_id firstName lastName username tier profileImage')
+      .populate('following', '_id firstName lastName username tier profileImage')
+      .populate('posts', '_id text media createdAt updatedAt likes comments').populate('likes', '_id username profileImage').populate('comments', '_id text media createdAt updatedAt likes')
+  }
+
+  async verifyEmail(userId: string): Promise<IUser | null> {
+    return await User.findByIdAndUpdate(userId, { isEmailVerified: true }, { new: true })
       .populate('followers', '_id firstName lastName username tier profileImage')
       .populate('following', '_id firstName lastName username tier profileImage')
       .populate('posts', '_id text media createdAt updatedAt likes comments').populate('likes', '_id username profileImage').populate('comments', '_id text media createdAt updatedAt likes')
