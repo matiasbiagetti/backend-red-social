@@ -36,7 +36,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
             return;
         }
         if (err == ErrorEmailNotVerified) {
-            res.status(412).json({ error: (err as Error).message });
+            res.status(409).json({ error: (err as Error).message });
             return;
         }
         res.status(500).json({ error: (err as Error).message });
