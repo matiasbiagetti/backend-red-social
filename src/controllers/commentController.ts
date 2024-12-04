@@ -23,6 +23,10 @@ export const createComment = async (req: AuthRequest, res: Response): Promise<vo
 export const getCommentsByPost = async (req: Request, res: Response): Promise<void> => {
   try {
     const postId = req.params.post_id;
+    if (!postId) {
+      res.status(400).json({ message: 'Post ID is required' });
+      return;
+    }
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
 
