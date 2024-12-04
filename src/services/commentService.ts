@@ -21,7 +21,6 @@ class CommentService {
       throw new Error('User not found');
     }
 
-    user.comments.push(comment._id);
     user.tier = await updateTier(userId)
     await user.save()
     return comment;
