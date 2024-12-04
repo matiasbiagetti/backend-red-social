@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Comment, { IComment } from '../models/commentModel';
 import Post from '../models/postModel';
 
@@ -42,7 +43,7 @@ class CommentRepository {
   }
 
   async findCommentsByPost(postId: string, page: number, limit: number): Promise<IComment[]> {
-    return await Comment.find({ post: postId }).populate('user', '_id username profileImage').populate('likes', '_id username profileImage')
+    return await Comment.find({ post: new mongoose.Types.ObjectId(postId) }).populate('user', '_id username profileImage').populate('likes', '_id username profileImage')
       .skip(page)
       .limit(limit)
       .exec();
