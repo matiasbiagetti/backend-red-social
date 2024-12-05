@@ -26,7 +26,7 @@ class PostRepository {
   }
 
   async findPostsByUsers(userIds: Types.ObjectId[], limit: number, page: number): Promise<IPost[]> {
-    const skip = (page - 1) * limit;
+    const skip = (page - 1) * 30;
     return Post.find({ user: { $in: userIds } })
       .populate('likes', '_id username')
       .populate('user', '_id username profileImage')
