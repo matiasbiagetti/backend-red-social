@@ -58,49 +58,47 @@ class PostRepository {
 
   async unlikePost(postId: string, userId: string): Promise<IPost | null> {
     const post = await Post.findByIdAndUpdate(
-      postId,
-      { $pull: { likes: userId } },
-      { new: true }
+        postId,
+        { $pull: { likes: userId } },
+        { new: true }
     ).populate('likes', '_id username')
     .populate('user', '_id username profileImage')
-    .populate('comments', '_id text media user likes')
+    .populate('comments', '_id text media user likes');
 
-    const user = await User.findByIdAndUpdate(userId, { $pull: { likes: Types.ObjectId.createFromHexString(postId) } }, { new: true });
-    await User.findByIdAndUpdate(userId, { $pull: { likedPosts: Types.ObjectId.createFromHexString(postId) } }, { new: true });
+    // Ensure the user's `likes` array is updated properly
+    await User.findByIdAndUpdate(
+        userId,
+        { $pull: { likes: postId } },
+        { new: true }
+    );
 
     return post;
+}
+
+async findLikedPosts(userId: string, page: number, limit: number): Promise<IPost[]> {
+  const skip = (page - 1) * limit;
+
+  // Ensure the user's likes array is updated correctly
+  const user = await User.findById(userId).exec();
+  if (!user) {
+      throw new Error('User not found');
   }
 
-  async findLikedPosts(userId: string, page: number, limit: number): Promise<IPost[]> {
-    const skip = (page - 1) * limit;
-
-    // Find the user by ID
-    const user = await User.findById(userId).exec();
-  
-    if (!user) {
-      throw new Error('User not found');
-    }
-  
-    // Get the list of post IDs the user has liked
-    const likesIds = user.likes
-    console.log('LIKES', likesIds);
-    // Find posts that match the liked post IDs
-    const posts = await Post.find({ _id: { $in: likesIds } })
+  const likesIds = user.likes;
+  return await Post.find({ _id: { $in: likesIds } })
       .skip(skip)
       .limit(limit)
       .populate('likes', '_id username')
       .populate('user', '_id username profileImage')
       .populate({
-        path: 'comments',
-        populate: {
-          path: 'user',
-          select: '_id username profileImage'
-        }
+          path: 'comments',
+          populate: {
+              path: 'user',
+              select: '_id username profileImage'
+          }
       })
       .exec();
-  
-    return posts;
-  };
+};
 }
 
 export default new PostRepository();
