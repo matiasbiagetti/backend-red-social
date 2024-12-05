@@ -40,7 +40,7 @@ const UserSchema: Schema<IUser> = new Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   profileImage: { type: String, default: 'https://res.cloudinary.com/dsczjznlw/image/upload/v1731551232/ADI/wt28egc6mzm88so3zqpb.png' },
-  coverImage: { type: String },
+  coverImage: { type: String , default: 'https://res.cloudinary.com/dsczjznlw/image/upload/v1733418674/ADI/ehwjkuc0wsb5ngpnsp1s.png' },
   following: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   posts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
