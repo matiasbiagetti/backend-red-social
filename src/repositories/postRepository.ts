@@ -65,6 +65,12 @@ class PostRepository {
     .populate('user', '_id username profileImage')
     .populate('comments', '_id text media user likes')
 
+    User.findByIdAndUpdate(
+      userId,
+      { $pull: { likes: postId } },
+      { new: true }
+    );
+
     const user = await User.findByIdAndUpdate(userId, { $pull: { likedPosts: postId } }, { new: true });
 
     return post;
