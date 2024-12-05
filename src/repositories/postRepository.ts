@@ -26,13 +26,13 @@ class PostRepository {
   }
 
   async findPostsByUsers(userIds: Types.ObjectId[], limit: number, page: number): Promise<IPost[]> {
-    const skip = (page - 1) * 30;
+    const skip = (page - 1) * limit;
     return Post.find({ user: { $in: userIds } })
       .populate('likes', '_id username')
       .populate('user', '_id username profileImage')
       .populate('comments', '_id text media user likes')
       .sort({ createdAt: -1 })
-      .limit(limit)
+      .limit(30)
       .skip(skip)
       .exec();
   }
