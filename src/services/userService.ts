@@ -8,15 +8,20 @@ class UserService {
   }
 
   async updateUser(userId: string, data: Partial<IUser>): Promise<IUser | null> {
+    const userToUpdate = await userRepository.findUserById(userId)
     if (data.coverImage) {
+      if (data.coverImage !== userToUpdate.coverImage) {
       let url = await uploadMediaToCloudinary([data.coverImage]);
       console.log('url:', url);
       data.coverImage = url[0];
+      }
     }
     if (data.profileImage) {
+      if (data.profileImage !== userToUpdate.profileImage) {
       let url = await uploadMediaToCloudinary([data.profileImage]);
       console.log('url:', url);
       data.profileImage = url[0];
+      }
     }
     return await userRepository.updateUser(userId, data);
   }
