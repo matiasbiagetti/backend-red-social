@@ -24,8 +24,8 @@ class UserRepository {
 
   async findUserById(userId: string): Promise<IUser | null> {
     return await User.findById(userId)
-      .populate('followers', '_id firstName lastName username tier profileImage')
-      .populate('following', '_id firstName lastName username tier profileImage')
+      .populate('followers', '_id firstName lastName username tier profileImage bio')
+      .populate('following', '_id firstName lastName username tier profileImage bio')
       .populate('posts', '_id text media createdAt updatedAt likes comments').populate('likes', '_id username profileImage').populate('comments', '_id text media createdAt updatedAt likes');
 
   }

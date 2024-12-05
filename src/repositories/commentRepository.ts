@@ -22,9 +22,9 @@ class CommentRepository {
       postId,
       { $push: { comments: newComment._id } },
       { new: true }
-    ).populate('user', '_id username profileImage').populate('likes', '_id username profileImage');
+    ).populate('user', '_id username profileImage tier').populate('likes', '_id username profileImage tier');
 
-    return (await newComment.populate('user', '_id username profileImage')).populate('likes', '_id username profileImage');
+    return (await newComment.populate('user', '_id username profileImage tier')).populate('likes', '_id username profileImage tier');
   }
 
 
@@ -51,8 +51,8 @@ class CommentRepository {
 
   async findCommentsByPost(postId: string, page: number, limit: number): Promise<IComment[]> {
     return await Comment.find({ post: Types.ObjectId.createFromHexString(postId) })
-      .populate('user', '_id username profileImage')
-      .populate('likes', '_id username profileImage')
+      .populate('user', '_id username profileImage tier')
+      .populate('likes', '_id username profileImage tier')
       .limit(limit)
       .skip((page - 1) * limit)
       .exec();
@@ -63,7 +63,7 @@ class CommentRepository {
       commentId,
       { $addToSet: { likes: userId } },
       { new: true }
-    ).populate('user', '_id username profileImage');
+    ).populate('user', '_id username profileImage tier');
   }
 
   async unlikeComment(commentId: string, userId: string): Promise<IComment | null> {
@@ -72,11 +72,11 @@ class CommentRepository {
       { $pull: { likes: userId } },
       { new: true }
     )
-    .populate('user', '_id username profileImage');
+    .populate('user', '_id username profileImage tier');
   }
 
   async updateComment(commentId: string, comment: string): Promise<IComment | null> {
-    return await Comment.findByIdAndUpdate(commentId, { text: comment }, { new: true }).populate('user', '_id username profileImage');
+    return await Comment.findByIdAndUpdate(commentId, { text: comment }, { new: true }).populate('user', '_id username profileImage tier');
   }
 
   
